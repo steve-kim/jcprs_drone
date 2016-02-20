@@ -12,15 +12,9 @@
 #include "driverlib/pwm.h"
 #include "driverlib/sysctl.h"
 
-struct state;
-typedef void state_fn(struct state *);
+#include "motor_control.h"
 
-struct state
-{
-	state_fn *next;
-};
-
-state_fn state_phase_AlBh;
+static void (*next)();
 
 /**
  * https://i.cmpnet.com/embedded/2008/July08/STMBLDCFig3.jpg
@@ -44,7 +38,7 @@ state_fn state_phase_AlBh;
  * The unlisted phase is unconnected
  */
 
-void state_phase_AlBh(struct state *state) {
+void state_phase_AlBh() {
 	// Disable PWM signals first, to prevent shoot-through
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
@@ -53,7 +47,7 @@ void state_phase_AlBh(struct state *state) {
     PWMOutputState(PWM0_BASE, PWM_OUT_3_BIT | PWM_OUT_1_BIT,true);
 }
 
-void state_phase_BhCl(struct state *state) {
+void state_phase_BhCl() {
 	// Disable PWM signals first, to prevent shoot-through
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
@@ -62,7 +56,7 @@ void state_phase_BhCl(struct state *state) {
     PWMOutputState(PWM0_BASE, PWM_OUT_1_BIT | PWM_OUT_5_BIT,true);
 }
 
-void state_phase_AhCl(struct state *state) {
+void state_phase_AhCl() {
 	// Disable PWM signals first, to prevent shoot-through
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
@@ -71,7 +65,7 @@ void state_phase_AhCl(struct state *state) {
     PWMOutputState(PWM0_BASE, PWM_OUT_0_BIT | PWM_OUT_5_BIT,true);
 }
 
-void state_phase_AhBl(struct state *state) {
+void state_phase_AhBl() {
 	// Disable PWM signals first, to prevent shoot-through
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
@@ -80,7 +74,7 @@ void state_phase_AhBl(struct state *state) {
     PWMOutputState(PWM0_BASE, PWM_OUT_0_BIT | PWM_OUT_4_BIT,true);
 }
 
-void state_phase_BlCh(struct state *state) {
+void state_phase_BlCh() {
 	// Disable PWM signals first, to prevent shoot-through
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
@@ -89,7 +83,7 @@ void state_phase_BlCh(struct state *state) {
     PWMOutputState(PWM0_BASE, PWM_OUT_4_BIT | PWM_OUT_2_BIT,true);
 }
 
-void state_phase_AlCh(struct state *state) {
+void state_phase_AlCh() {
 	// Disable PWM signals first, to prevent shoot-through
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
@@ -183,9 +177,8 @@ void configurePWM() {
 	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_5,
 						 PWMGenPeriodGet(PWM0_BASE, PWM_GEN_1) / 2);
 
-
-	struct state state = {state_phase_AlBh};
-	state_phase_AlBh(&state);
+	next = state_phase_AlBh;
+	(*next)();
 }
 
 void enablePWM() {
