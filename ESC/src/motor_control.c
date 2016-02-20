@@ -12,6 +12,92 @@
 #include "driverlib/pwm.h"
 #include "driverlib/sysctl.h"
 
+struct state;
+typedef void state_fn(struct state *);
+
+struct state
+{
+	state_fn *next;
+};
+
+state_fn state_phase_AlBh;
+
+/**
+ * https://i.cmpnet.com/embedded/2008/July08/STMBLDCFig3.jpg
+ *
+ * Phase A: High = PWM0
+ * 			Low  = PWM3
+ *
+ * Phase B: High = PWM1
+ * 			Low  = PWM4
+ *
+ * Phase C: High = PWM2
+ * 			Low  = PWM5
+ *
+ * In the functions below, the phase is given by its letter, and its
+ * its logic level is given by a lowercase 'l' or 'h'
+ *
+ * For example:
+ * 		AlBh = Phase A is low, and Phase B is high
+ * 		AhCl = Phase A is high, Phase C is low
+ *
+ * The unlisted phase is unconnected
+ */
+
+void state_phase_AlBh(struct state *state) {
+	// Disable PWM signals first, to prevent shoot-through
+    PWMOutputState(PWM0_BASE,
+    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
+			false);
+
+    PWMOutputState(PWM0_BASE, PWM_OUT_3_BIT | PWM_OUT_1_BIT,true);
+}
+
+void state_phase_BhCl(struct state *state) {
+	// Disable PWM signals first, to prevent shoot-through
+    PWMOutputState(PWM0_BASE,
+    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
+			false);
+
+    PWMOutputState(PWM0_BASE, PWM_OUT_1_BIT | PWM_OUT_5_BIT,true);
+}
+
+void state_phase_AhCl(struct state *state) {
+	// Disable PWM signals first, to prevent shoot-through
+    PWMOutputState(PWM0_BASE,
+    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
+			false);
+
+    PWMOutputState(PWM0_BASE, PWM_OUT_0_BIT | PWM_OUT_5_BIT,true);
+}
+
+void state_phase_AhBl(struct state *state) {
+	// Disable PWM signals first, to prevent shoot-through
+    PWMOutputState(PWM0_BASE,
+    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
+			false);
+
+    PWMOutputState(PWM0_BASE, PWM_OUT_0_BIT | PWM_OUT_4_BIT,true);
+}
+
+void state_phase_BlCh(struct state *state) {
+	// Disable PWM signals first, to prevent shoot-through
+    PWMOutputState(PWM0_BASE,
+    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
+			false);
+
+    PWMOutputState(PWM0_BASE, PWM_OUT_4_BIT | PWM_OUT_2_BIT,true);
+}
+
+void state_phase_AlCh(struct state *state) {
+	// Disable PWM signals first, to prevent shoot-through
+    PWMOutputState(PWM0_BASE,
+    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
+			false);
+
+    PWMOutputState(PWM0_BASE, PWM_OUT_3_BIT | PWM_OUT_1_BIT,true);
+}
+
 void initializePWM() {
     // Set the PWM clock to the system clock.
     SysCtlPWMClockSet(SYSCTL_PWMDIV_1);
@@ -97,12 +183,9 @@ void configurePWM() {
 	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_5,
 						 PWMGenPeriodGet(PWM0_BASE, PWM_GEN_1) / 2);
 
-    //
-    // Enable the PWM0 all PWM signals
-    //
-    PWMOutputState(PWM0_BASE,
-    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
-			true);
+
+	struct state state = {state_phase_AlBh};
+	state_phase_AlBh(&state);
 }
 
 void enablePWM() {
