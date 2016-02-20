@@ -35,6 +35,8 @@ int main(void) {
 	// TODO: change this to whichever GPIO port you are using.
 	//
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+	// M0PWM4 and M0PWM5 are mapped to GPIO Port E
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
 
     //
     // Configure the GPIO pin muxing to select PWM functions for these pins.
@@ -48,6 +50,9 @@ int main(void) {
     // Controlled by PWM Generator 1
     GPIOPinConfigure(GPIO_PB5_M0PWM3);
     GPIOPinConfigure(GPIO_PB4_M0PWM2);
+    // Controlled by PWM Generator 2
+    GPIOPinConfigure(GPIO_PE5_M0PWM5);
+	GPIOPinConfigure(GPIO_PE4_M0PWM4);
 
     //
     // Configure the GPIO pad for PWM function on pins PB6 and PB7.  Consult
@@ -58,6 +63,8 @@ int main(void) {
     GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_7);
     GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_5);
     GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_4);
+    GPIOPinTypePWM(GPIO_PORTE_BASE, GPIO_PIN_5);
+    GPIOPinTypePWM(GPIO_PORTE_BASE, GPIO_PIN_4);
 
     //
     // Configure the PWM0 to count up/down without synchronization.
@@ -69,6 +76,9 @@ int main(void) {
 
     PWMGenConfigure(PWM0_BASE, PWM_GEN_1, PWM_GEN_MODE_UP_DOWN |
                         PWM_GEN_MODE_NO_SYNC);
+
+    PWMGenConfigure(PWM0_BASE, PWM_GEN_2, PWM_GEN_MODE_UP_DOWN |
+                            PWM_GEN_MODE_NO_SYNC);
     //
     // Set the PWM period to 250Hz.  To calculate the appropriate parameter
     // use the following equation: N = (1 / f) * SysClk.  Where N is the
@@ -81,6 +91,7 @@ int main(void) {
     //
     PWMGenPeriodSet(PWM0_BASE, PWM_GEN_0, 64000);
     PWMGenPeriodSet(PWM0_BASE, PWM_GEN_1, 64000);
+    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_2, 64000);
 
     //
     // Set PWM0 PD0 to a duty cycle of 25%.  You set the duty cycle as a
@@ -100,16 +111,27 @@ int main(void) {
 
     PWMPulseWidthSet(PWM0_BASE, PWM_OUT_3,
                          PWMGenPeriodGet(PWM0_BASE, PWM_GEN_1) / 2);
+
+    // Outputs on PE5 and PE4
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_4,
+                             PWMGenPeriodGet(PWM0_BASE, PWM_GEN_1) / 4);
+
+	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_5,
+						 PWMGenPeriodGet(PWM0_BASE, PWM_GEN_1) / 2);
+
     //
     // Enable the PWM0 Bit 0 (PD0) and Bit 1 (PD1) output signals.
     //
-    PWMOutputState(PWM0_BASE, PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT, true);
+    PWMOutputState(PWM0_BASE,
+    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
+			true);
 
     //
     // Enables the counter for a PWM generator block.
     //
     PWMGenEnable(PWM0_BASE, PWM_GEN_0);
     PWMGenEnable(PWM0_BASE, PWM_GEN_1);
+    PWMGenEnable(PWM0_BASE, PWM_GEN_2);
 
     while(true) {}
 
