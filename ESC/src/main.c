@@ -12,6 +12,8 @@
 #include "driverlib/pwm.h"
 #include "driverlib/sysctl.h"
 
+#include "timer.h"
+
 static void configurePWM() {
     //
     // Configure the PWM0 to count up/down without synchronization.
@@ -117,8 +119,12 @@ int main(void) {
 
 	initializeGPIO();
 	initializePWM();
+	initializeTimer();
 
 	configurePWM();
+
+	// Enable processor wide interrupts
+	IntMasterEnable();
 
     //
     // Enable the PWM0 all PWM signals
@@ -133,6 +139,8 @@ int main(void) {
     PWMGenEnable(PWM0_BASE, PWM_GEN_0);
     PWMGenEnable(PWM0_BASE, PWM_GEN_1);
     PWMGenEnable(PWM0_BASE, PWM_GEN_2);
+
+    enableTimer();
 
     while(true) {}
 

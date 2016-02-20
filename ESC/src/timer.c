@@ -16,6 +16,16 @@
 #include "driverlib/timer.h"
 
 void initializeTimer() {
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
 
+	// Configure the timer for 16-bit periodic interrupt
+	TimerConfigure(TIMER0_BASE, TIMER_CFG_SPLIT_PAIR | TIMER_CFG_B_PERIODIC);
+
+	// Enable timer interrupts
+	TimerIntEnable(TIMER0_BASE, TIMER_TIMB_TIMEOUT);
+	IntEnable(INT_TIMER0B);
 }
 
+void enableTimer() {
+	TimerEnable(TIMER0_BASE, TIMER_B);
+}

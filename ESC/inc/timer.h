@@ -9,5 +9,6 @@
 #define INC_TIMER_H_
 
 void initializeTimer();
+void enableTimer();
 
 #endif /* INC_TIMER_H_ */
