@@ -10,5 +10,6 @@
 
 void initializePWM();
 void configurePWM();
+void enablePWM();
 
 #endif /* INC_MOTOR_CONTROL_H_ */

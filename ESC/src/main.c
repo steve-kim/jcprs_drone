@@ -42,20 +42,7 @@ int main(void) {
 	// Enable processor wide interrupts
 	IntMasterEnable();
 
-    //
-    // Enable the PWM0 all PWM signals
-    //
-    PWMOutputState(PWM0_BASE,
-    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
-			true);
-
-    //
-    // Enables the counter for a PWM generator block.
-    //
-    PWMGenEnable(PWM0_BASE, PWM_GEN_0);
-    PWMGenEnable(PWM0_BASE, PWM_GEN_1);
-    PWMGenEnable(PWM0_BASE, PWM_GEN_2);
-
+	enablePWM();
     enableTimer();
 
     while(true) {}
