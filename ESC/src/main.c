@@ -12,60 +12,7 @@
 #include "driverlib/pwm.h"
 #include "driverlib/sysctl.h"
 
-int main(void) {
-	// Set up system clock
-	SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN |
-            SYSCTL_XTAL_16MHZ);
-
-    //
-    // Set the PWM clock to the system clock.
-    //
-    SysCtlPWMClockSet(SYSCTL_PWMDIV_1);
-
-    //
-    // The PWM peripheral must be enabled for use.
-    //
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
-
-    //
-	// For this example PWM0 is used with PortB Pins 6 and 7.  The actual port
-	// and pins used may be different on your part, consult the data sheet for
-	// more information.  GPIO port B needs to be enabled so these pins can be
-	// used.
-	// TODO: change this to whichever GPIO port you are using.
-	//
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
-	// M0PWM4 and M0PWM5 are mapped to GPIO Port E
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
-
-    //
-    // Configure the GPIO pin muxing to select PWM functions for these pins.
-    // This step selects which alternate function is available for these pins.
-    // This is necessary if your part supports GPIO pin function muxing.
-    // Consult the data sheet to see which functions are allocated per pin.
-    // TODO: change this to select the port/pin you are using.
-    //
-    GPIOPinConfigure(GPIO_PB6_M0PWM0);
-    GPIOPinConfigure(GPIO_PB7_M0PWM1);
-    // Controlled by PWM Generator 1
-    GPIOPinConfigure(GPIO_PB5_M0PWM3);
-    GPIOPinConfigure(GPIO_PB4_M0PWM2);
-    // Controlled by PWM Generator 2
-    GPIOPinConfigure(GPIO_PE5_M0PWM5);
-	GPIOPinConfigure(GPIO_PE4_M0PWM4);
-
-    //
-    // Configure the GPIO pad for PWM function on pins PB6 and PB7.  Consult
-    // the data sheet to see which functions are allocated per pin.
-    // TODO: change this to select the port/pin you are using.
-    //
-    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_6);
-    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_7);
-    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_5);
-    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_4);
-    GPIOPinTypePWM(GPIO_PORTE_BASE, GPIO_PIN_5);
-    GPIOPinTypePWM(GPIO_PORTE_BASE, GPIO_PIN_4);
-
+static void configurePWM() {
     //
     // Configure the PWM0 to count up/down without synchronization.
     // Note: Enabling the dead-band generator automatically couples the 2
@@ -118,9 +65,63 @@ int main(void) {
 
 	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_5,
 						 PWMGenPeriodGet(PWM0_BASE, PWM_GEN_1) / 2);
+}
+
+static void initializePWM() {
+    // Set the PWM clock to the system clock.
+    SysCtlPWMClockSet(SYSCTL_PWMDIV_1);
 
     //
-    // Enable the PWM0 Bit 0 (PD0) and Bit 1 (PD1) output signals.
+    // The PWM peripheral must be enabled for use.
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
+
+    // Controlled by PWM Generator 0
+    GPIOPinConfigure(GPIO_PB6_M0PWM0);
+    GPIOPinConfigure(GPIO_PB7_M0PWM1);
+    // Controlled by PWM Generator 1
+    GPIOPinConfigure(GPIO_PB5_M0PWM3);
+    GPIOPinConfigure(GPIO_PB4_M0PWM2);
+    // Controlled by PWM Generator 2
+    GPIOPinConfigure(GPIO_PE5_M0PWM5);
+	GPIOPinConfigure(GPIO_PE4_M0PWM4);
+
+    //
+    // Configure the GPIO pad for PWM function on pins PB6 and PB7.  Consult
+    // the data sheet to see which functions are allocated per pin.
+    //
+    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_6);
+    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_7);
+    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_5);
+    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_4);
+    GPIOPinTypePWM(GPIO_PORTE_BASE, GPIO_PIN_5);
+    GPIOPinTypePWM(GPIO_PORTE_BASE, GPIO_PIN_4);
+}
+
+static void initializeGPIO() {
+    //
+	// For this example PWM0 is used with PortB Pins 6 and 7.  The actual port
+	// and pins used may be different on your part, consult the data sheet for
+	// more information.  GPIO port B needs to be enabled so these pins can be
+	// used.
+	//
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+	// M0PWM4 and M0PWM5 are mapped to GPIO Port E
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+}
+
+int main(void) {
+	// Set up system clock
+	SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN |
+            SYSCTL_XTAL_16MHZ);
+
+	initializeGPIO();
+	initializePWM();
+
+	configurePWM();
+
+    //
+    // Enable the PWM0 all PWM signals
     //
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
