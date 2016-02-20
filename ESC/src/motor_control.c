@@ -14,7 +14,17 @@
 
 #include "motor_control.h"
 
-static void (*next)();
+// This is a const array of function pointers.
+// Must be stored as const due to limited RAM size.
+void (*const state[6])() =
+{
+		state_phase_AlBh,
+		state_phase_BhCl,
+		state_phase_AhCl,
+		state_phase_AhBl,
+		state_phase_BlCh,
+		state_phase_AlCh
+};
 
 /**
  * https://i.cmpnet.com/embedded/2008/July08/STMBLDCFig3.jpg
@@ -38,7 +48,7 @@ static void (*next)();
  * The unlisted phase is unconnected
  */
 
-void state_phase_AlBh() {
+static void state_phase_AlBh() {
 	// Disable PWM signals first, to prevent shoot-through
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
@@ -47,7 +57,7 @@ void state_phase_AlBh() {
     PWMOutputState(PWM0_BASE, PWM_OUT_3_BIT | PWM_OUT_1_BIT,true);
 }
 
-void state_phase_BhCl() {
+static void state_phase_BhCl() {
 	// Disable PWM signals first, to prevent shoot-through
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
@@ -56,7 +66,7 @@ void state_phase_BhCl() {
     PWMOutputState(PWM0_BASE, PWM_OUT_1_BIT | PWM_OUT_5_BIT,true);
 }
 
-void state_phase_AhCl() {
+static void state_phase_AhCl() {
 	// Disable PWM signals first, to prevent shoot-through
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
@@ -65,7 +75,7 @@ void state_phase_AhCl() {
     PWMOutputState(PWM0_BASE, PWM_OUT_0_BIT | PWM_OUT_5_BIT,true);
 }
 
-void state_phase_AhBl() {
+static void state_phase_AhBl() {
 	// Disable PWM signals first, to prevent shoot-through
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
@@ -74,7 +84,7 @@ void state_phase_AhBl() {
     PWMOutputState(PWM0_BASE, PWM_OUT_0_BIT | PWM_OUT_4_BIT,true);
 }
 
-void state_phase_BlCh() {
+static void state_phase_BlCh() {
 	// Disable PWM signals first, to prevent shoot-through
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
@@ -83,7 +93,7 @@ void state_phase_BlCh() {
     PWMOutputState(PWM0_BASE, PWM_OUT_4_BIT | PWM_OUT_2_BIT,true);
 }
 
-void state_phase_AlCh() {
+static void state_phase_AlCh() {
 	// Disable PWM signals first, to prevent shoot-through
     PWMOutputState(PWM0_BASE,
     		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
@@ -176,9 +186,6 @@ void configurePWM() {
 
 	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_5,
 						 PWMGenPeriodGet(PWM0_BASE, PWM_GEN_1) / 2);
-
-	next = state_phase_AlBh;
-	(*next)();
 }
 
 void enablePWM() {
@@ -188,4 +195,14 @@ void enablePWM() {
     PWMGenEnable(PWM0_BASE, PWM_GEN_0);
     PWMGenEnable(PWM0_BASE, PWM_GEN_1);
     PWMGenEnable(PWM0_BASE, PWM_GEN_2);
+}
+
+void switchState() {
+	static unsigned char current_state = 0;
+
+	(*state[current_state])();
+	current_state++;
+	if (current_state > 5) {
+		current_state = 0;
+	}
 }

@@ -40,6 +40,7 @@ int main(void) {
 	IntMasterEnable();
 
 	enablePWM();
+	switchState();
     enableTimer();
 
     while(true) {}

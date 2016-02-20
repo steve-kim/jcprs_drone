@@ -8,17 +8,16 @@
 #ifndef INC_MOTOR_CONTROL_H_
 #define INC_MOTOR_CONTROL_H_
 
-typedef void state_fn();
-
-state_fn state_phase_AlBh;
-state_fn state_phase_BhCl;
-state_fn state_phase_AhCl;
-state_fn state_phase_AhBl;
-state_fn state_phase_BlCh;
-state_fn state_phase_AlCh;
+static void state_phase_AlBh();
+static void state_phase_BhCl();
+static void state_phase_AhCl();
+static void state_phase_AhBl();
+static void state_phase_BlCh();
+static void state_phase_AlCh();
 
 void initializePWM();
 void configurePWM();
 void enablePWM();
+void switchState();
 
 #endif /* INC_MOTOR_CONTROL_H_ */

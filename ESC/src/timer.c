@@ -13,16 +13,13 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/timer.h"
 
-static unsigned char interrupt_counter = 0;
+#include "timer.h"
+#include "motor_control.h"
 
 void Timer0IntHandler(void) {
 	TimerIntClear(TIMER0_BASE, TIMER_TIMB_TIMEOUT);
 
-	interrupt_counter++;;
-
-	if (interrupt_counter == 255) {
-		interrupt_counter = 0;
-	}
+	switchState();
 }
 
 void initializeTimer() {
@@ -32,7 +29,7 @@ void initializeTimer() {
 	TimerConfigure(TIMER0_BASE, TIMER_CFG_SPLIT_PAIR | TIMER_CFG_B_PERIODIC);
 
 	// Interrupt every 500ms
-	TimerLoadSet(TIMER0_BASE, TIMER_B, SysCtlClockGet() / 2);
+	TimerLoadSet(TIMER0_BASE, TIMER_B, SysCtlClockGet());
 
 	// Enable timer interrupts
 	TimerIntEnable(TIMER0_BASE, TIMER_TIMB_TIMEOUT);
