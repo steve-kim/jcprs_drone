@@ -45,6 +45,9 @@ int main(void) {
     //
     GPIOPinConfigure(GPIO_PB6_M0PWM0);
     GPIOPinConfigure(GPIO_PB7_M0PWM1);
+    // Controlled by PWM Generator 1
+    GPIOPinConfigure(GPIO_PB5_M0PWM3);
+    GPIOPinConfigure(GPIO_PB4_M0PWM2);
 
     //
     // Configure the GPIO pad for PWM function on pins PB6 and PB7.  Consult
@@ -53,6 +56,8 @@ int main(void) {
     //
     GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_6);
     GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_7);
+    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_5);
+    GPIOPinTypePWM(GPIO_PORTB_BASE, GPIO_PIN_4);
 
     //
     // Configure the PWM0 to count up/down without synchronization.
@@ -62,6 +67,8 @@ int main(void) {
     PWMGenConfigure(PWM0_BASE, PWM_GEN_0, PWM_GEN_MODE_UP_DOWN |
                     PWM_GEN_MODE_NO_SYNC);
 
+    PWMGenConfigure(PWM0_BASE, PWM_GEN_1, PWM_GEN_MODE_UP_DOWN |
+                        PWM_GEN_MODE_NO_SYNC);
     //
     // Set the PWM period to 250Hz.  To calculate the appropriate parameter
     // use the following equation: N = (1 / f) * SysClk.  Where N is the
@@ -73,6 +80,7 @@ int main(void) {
     // using.
     //
     PWMGenPeriodSet(PWM0_BASE, PWM_GEN_0, 64000);
+    PWMGenPeriodSet(PWM0_BASE, PWM_GEN_1, 64000);
 
     //
     // Set PWM0 PD0 to a duty cycle of 25%.  You set the duty cycle as a
@@ -85,15 +93,23 @@ int main(void) {
 
     PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1,
                          PWMGenPeriodGet(PWM0_BASE, PWM_GEN_0) / 2);
+
+    // Outputs on PB5 and PB4
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_2,
+                         PWMGenPeriodGet(PWM0_BASE, PWM_GEN_1) / 4);
+
+    PWMPulseWidthSet(PWM0_BASE, PWM_OUT_3,
+                         PWMGenPeriodGet(PWM0_BASE, PWM_GEN_1) / 2);
     //
     // Enable the PWM0 Bit 0 (PD0) and Bit 1 (PD1) output signals.
     //
-    PWMOutputState(PWM0_BASE, PWM_OUT_1_BIT | PWM_OUT_0_BIT, true);
+    PWMOutputState(PWM0_BASE, PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT, true);
 
     //
     // Enables the counter for a PWM generator block.
     //
     PWMGenEnable(PWM0_BASE, PWM_GEN_0);
+    PWMGenEnable(PWM0_BASE, PWM_GEN_1);
 
     while(true) {}
 
