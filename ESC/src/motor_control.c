@@ -50,56 +50,44 @@ void (*const state[6])() =
 
 static void state_phase_AlBh() {
 	// Disable PWM signals first, to prevent shoot-through
-    PWMOutputState(PWM0_BASE,
-    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
-			false);
-
+	disablePWM();
     PWMOutputState(PWM0_BASE, PWM_OUT_3_BIT | PWM_OUT_1_BIT,true);
+    enablePWM();
 }
 
 static void state_phase_BhCl() {
 	// Disable PWM signals first, to prevent shoot-through
-    PWMOutputState(PWM0_BASE,
-    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
-			false);
-
+	disablePWM();
     PWMOutputState(PWM0_BASE, PWM_OUT_1_BIT | PWM_OUT_5_BIT,true);
+    enablePWM();
 }
 
 static void state_phase_AhCl() {
 	// Disable PWM signals first, to prevent shoot-through
-    PWMOutputState(PWM0_BASE,
-    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
-			false);
-
+	disablePWM();
     PWMOutputState(PWM0_BASE, PWM_OUT_0_BIT | PWM_OUT_5_BIT,true);
+    enablePWM();
 }
 
 static void state_phase_AhBl() {
 	// Disable PWM signals first, to prevent shoot-through
-    PWMOutputState(PWM0_BASE,
-    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
-			false);
-
+	disablePWM();
     PWMOutputState(PWM0_BASE, PWM_OUT_0_BIT | PWM_OUT_4_BIT,true);
+    enablePWM();
 }
 
 static void state_phase_BlCh() {
 	// Disable PWM signals first, to prevent shoot-through
-    PWMOutputState(PWM0_BASE,
-    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
-			false);
-
+	disablePWM();
     PWMOutputState(PWM0_BASE, PWM_OUT_4_BIT | PWM_OUT_2_BIT,true);
+    enablePWM();
 }
 
 static void state_phase_AlCh() {
 	// Disable PWM signals first, to prevent shoot-through
-    PWMOutputState(PWM0_BASE,
-    		PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT | PWM_OUT_1_BIT | PWM_OUT_0_BIT,
-			false);
-
-    PWMOutputState(PWM0_BASE, PWM_OUT_3_BIT | PWM_OUT_1_BIT,true);
+	disablePWM();
+    PWMOutputState(PWM0_BASE, PWM_OUT_3_BIT | PWM_OUT_2_BIT,true);
+    enablePWM();
 }
 
 void initializePWM() {
@@ -186,6 +174,19 @@ void configurePWM() {
 
 	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_5,
 						 PWMGenPeriodGet(PWM0_BASE, PWM_GEN_1) / 2);
+}
+
+void disablePWM() {
+    //
+    // Disables the counter for a PWM generator block.
+    //
+    PWMGenDisable(PWM0_BASE, PWM_GEN_0);
+    PWMGenDisable(PWM0_BASE, PWM_GEN_1);
+    PWMGenDisable(PWM0_BASE, PWM_GEN_2);
+
+	PWMOutputState(PWM0_BASE,
+			PWM_OUT_5_BIT | PWM_OUT_4_BIT | PWM_OUT_3_BIT | PWM_OUT_2_BIT| PWM_OUT_1_BIT | PWM_OUT_0_BIT,
+			false);
 }
 
 void enablePWM() {

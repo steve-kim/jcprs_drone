@@ -17,6 +17,7 @@ static void state_phase_AlCh();
 
 void initializePWM();
 void configurePWM();
+void disablePWM();
 void enablePWM();
 void switchState();
 
